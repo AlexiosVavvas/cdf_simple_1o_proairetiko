@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"fortran.fortls.disabled": true,
+		"fortran.provide.autocomplete": "Built-in",
+		"fortran.provide.hover": "Built-in"
+	}
+}
