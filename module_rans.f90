@@ -2,11 +2,11 @@
 !-------------------------------------------------------------------------------------
    implicit none 
 
-   integer  :: ngridx1,ngridx2,ngridx,ngridy,ngridy1,ngridy2
+   integer  :: ngridx1,ngridx2,ngridx,ngridy,ngrid_uni,ngridy1,ngridy2
    integer  :: it,itmax,nswp,nvt,istab,npos
 
    double precision ::  pi,eps,tiny
-   double precision ::  xmin,xmax,xuni,ymin,ymax,ratx1,ratx2,raty
+   double precision ::  xmin,xmax,xuni,ymin,change_y_pos,ymax,ratx1,ratx2,raty1,raty2
    double precision ::  urfu,urfv,urfp,urfte,urfvis
    double precision ::  Uinf, dvisc, radius, Re, ct 
    double precision ::  tiamb,vtamb

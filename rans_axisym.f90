@@ -20,15 +20,15 @@
 !---READ INPUT DATA                           
       
   open(5,file='input.txt') 
-  read(5,*)                                       !   xmin,xmax: start,end of domain in x-axis                               
-  read(5,*)  xmin, xmax, xuni, ymin, ymax         !   ymin,ymax: start,end of domain in y-axis
-  write(*,*) xmin, xmax, xuni, ymin, ymax         !   xuni: length of uniform grid in x-direction
-  read(5,*)                                       !                                     
-  read(5,*) ngridx2, ngridy1                      !   ngridx1: number of nodes in uniform part in x-axis
-  write(*,*) ngridx2, ngridy1                     !   ngridy1: numver of nodes in uniform part in y-axis  
-  read(5,*)                                       !                                                    
-  read(5,*) ratx1,ratx2,raty                             !   Ratio of geometrical progression in x direction: xuni-->xmax
-  write(*,*) ratx1,ratx2,raty                            !   Ratio of geometrical progression in y direction: 0-->1    
+  read(5,*)                                                     !   xmin,xmax: start,end of domain in x-axis                               
+  read(5,*)  xmin, xmax, xuni, ymin, change_y_pos, ymax         !   ymin,ymax: start,end of domain in y-axis
+  write(*,*) xmin, xmax, xuni, ymin, change_y_pos, ymax         !   xuni: length of uniform grid in x-direction
+  read(5,*)                                                     !   change_y_pos: position in the vertical axis where we reverse the geometric progression to be denser at the wall                                  
+  read(5,*)  ngridx2, ngrid_uni, ngridy1, ngridy2               !   ngridx1: number of nodes in uniform part in x-axis
+  write(*,*) ngridx2, ngrid_uni, ngridy1, ngridy2               !   ngrid_uni: number of nodes in uniform part in y-axis  
+  read(5,*)                                                     !   ngridy1: nodes in the ratio 1 part in the vertical axis                                                 
+  read(5,*) ratx1,ratx2                           !   Ratio of geometrical progression in x direction: xuni-->xmax
+  write(*,*) ratx1,ratx2                          !   Ratio of geometrical progression in y direction: 0-->1    
   read(5,*)                                       !                                              
   read(5,*) dvisc, Uinf                           !   Kinematic viscosity,  Free stream velocity 
   write(*,*) dvisc, Uinf
@@ -249,39 +249,44 @@
   open(15,file='stggridV1')
   open(16,file='stggridV2') 
 
-  dy_grid = 1.d0/(ngridy1-2)
-  ngridy2 = int(dlog(1.-(ymax-1.d0)*(1.d0-raty)/dy_grid)/dlog(raty))
-  ngridy=ngridy1+ngridy2
-  write(*,*) 'ngridy=',ngridy
+  ! 3 Areas. min -> grid_uni, uniform -> ngridy1, ngridy1 -> ngridy2
+  ! In 2nd and 3rd, we give init point, last point and number of points in between and it finds the 
+  ! appropriate ratio to do the job.
 
-!--- Matrix for y-grid
+  ! Basic calculations
+  dy_grid = 1.0d0 / real(ngrid_uni - 1)
+  ngridy = ngrid_uni + ngridy1 + ngridy2 - 2
+
+  ! Allocations
   allocate(y_grid(ngridy))
 
-!--- Uniform grid in y-direction 
-!--- From y=ymin to y=1 (disk radius)
-
-  y_grid(2)=ymin 
-  do j=2,ngridy1-1
-   y_grid(j+1)=y_grid(j) + dy_grid
+  !--- From y=ymin to y=1 (disk radius)
+  y_grid(2) = y_min
+  do j = 2, ngrid_uni-1
+    y_grid(j + 1) = y_grid(j) + dy_grid
   enddo
-  y_grid(1)=-y_grid(3) 
+  y_grid(1) = -y_grid(3)
 
-!---- Change here to include refinement towards the wall
-!--- Non-uniform grid from ngridy1 to ngridy
-!--- From y=1 to y=ymax 
-
-  do j=1,ngridy2
-   y_grid(j+ngridy1)=y_grid(j+ngridy1-1) + dy_grid*raty**(j-1)
+  !--- From y=1 to y=change_y_pos
+  raty1 = (change_y_pos / 1.0d0) ** (1.0d0 / real(ngridy1 - 1))
+  do j = 1, ngridy1
+    y_grid(ngrid_uni + j) = y_grid(ngrid_uni + j-1) * raty1
   enddo
 
-  do j=1,ngridy1+ngridy2
-   write(*,*) j,y_grid(j)
+  !--- From y=change_y_pos to y=ymax
+  raty2 = (ymax / change_y_pos) ** (1.0d0 / real(ngridy2 + 1))
+  do j = 0, ngridy2 - 2
+    y_grid(ngrid_uni + ngridy1 + j) = change_y_pos * raty2 ** real(ngridy2 - 1 - j)
   enddo
+  do j = 0, ngridy2 - 2
+    y_grid(ngrid_uni + ngridy1 + j) = 2.0d0 * (ymax + change_y_pos) / 2.0d0 - y_grid(ngrid_uni + ngridy1 + j)
+  enddo
+
 
 !-- x-grid 
 !-- 
 
-  dx_grid2 = xuni / (ngridx2-1)
+  dx_grid2 = xuni / real(ngridx2-1, kind=8)
   dx_grid1 = dx_grid2 
   write(*,*) 'dx_grid1=', dx_grid1
 

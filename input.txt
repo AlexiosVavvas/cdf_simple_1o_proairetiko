@@ -1,23 +1,23 @@
-    XMIN      XMAX      XUNI     YMIN    YMAX
-    -40.      80.       20.      0.      15   
-  NGRIDX2     NGRIDY1
-     51      16   
-    RATX1     RATX2     RATY1      
-    1.2      1.5      1.7
-  DVISC       UINF      
-  1.5e-5      10.        
-  RADIUS      CT                    
-    51.       0.8               
-  ITMAX       NSWP      NBACKUP            
-   30000      5         1000 
-   EPS        TINY
-  1d-6        1d-20
-  URFU        URFV      URFP     URFTE    URFVIS
-   0.60       0.60      0.50     0.80     0.80
-  TIAMB                                    
-   0.10                                   
- IBACKUP
-     0
+XMIN      XMAX      XUNI     YMIN    CHANGE_Y_POS   YMAX   
+-40.      80.       20.      0.      9              15     
+NGRIDX2     NGRID_UNI      NGRIDY1     NGRIDY2
+51          50             80          90
+RATX1       RATX2      
+1.2         1.5   
+DVISC       UINF      
+1.5e-5      10.        
+RADIUS      CT                    
+  51.       0.8               
+ITMAX       NSWP      NBACKUP            
+30000       5         1000 
+EPS         TINY
+1d-6        1d-20
+URFU        URFV      URFP     URFTE    URFVIS
+0.60        0.60      0.50     0.80     0.80
+TIAMB                                    
+0.10                                   
+IBACKUP
+0
 
 
-   0.60       0.60      0.30     0.8      1.0 
+0.60       0.60      0.30     0.8      1.0 
