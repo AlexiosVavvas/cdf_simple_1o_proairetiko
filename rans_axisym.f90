@@ -13,7 +13,7 @@
   use rans  
       
   double precision :: errmaxp,errmaxu,errmaxv,errmaxte
-  double precision :: Qinflow,Qout,Qside 
+  double precision :: Qinflow,Qout
   errmaxp = tiny
   errmaxu = tiny
   errmaxv = tiny
@@ -490,7 +490,6 @@
  use rans  
 
  integer ::i,j
- double precision :: F,bkl,akarm,psim,aka,xi
 
 !--- Estimation of the turbulent viscosity due to ambient turbulence   
 !--- From anisotropy of atmospheric turbulence TKE=0.945*sigmax^2 -> 1.5*sigmax^2
@@ -517,7 +516,6 @@ END Subroutine TURBVIS
   
   double precision :: err, errmaxu
   double precision :: Fe,Fw,Fn,Fs,De,Dw,Dn,Ds,Pe,Pw,Pn,Ps
-  double precision :: uen,ues,uwn,uws
   double precision :: yc,alpha
       
   integer           :: i,j,isu
@@ -710,7 +708,6 @@ END Subroutine TURBVIS
   
   double precision :: err, errmaxv
   double precision :: Fe,Fw,Fn,Fs,De,Dw,Dn,Ds,Pe,Pw,Pn,Ps,Ve,Vw,Vn,Vs
-  double precision :: un,up,us
   double precision :: yc,alpha
 
   integer          :: i,j,isv
@@ -1058,7 +1055,6 @@ END Subroutine TURBVIS
   
   double precision :: err, errmaxte
   double precision :: Fe,Fw,Fn,Fs,De,Dw,Dn,Ds,Pe,Pw,Pn,Ps
-  double precision :: uen,ues,uwn,uws
   double precision :: yc,alpha
       
   integer           :: i,j,isu
