@@ -14,6 +14,10 @@
       
   double precision :: errmaxp,errmaxu,errmaxv,errmaxte
   double precision :: Qinflow,Qout,Qside 
+  errmaxp = tiny
+  errmaxu = tiny
+  errmaxv = tiny
+  errmaxte = tiny
       
   pi = 4.d0*datan(1.0d0)
   
@@ -22,34 +26,34 @@
   open(5,file='input.txt') 
   read(5,*)                                                     !   xmin,xmax: start,end of domain in x-axis                               
   read(5,*)  xmin, xmax, xuni, ymin, change_y_pos, ymax         !   ymin,ymax: start,end of domain in y-axis
-  write(*,*) xmin, xmax, xuni, ymin, change_y_pos, ymax         !   xuni: length of uniform grid in x-direction
+  ! write(*,*) xmin, xmax, xuni, ymin, change_y_pos, ymax       !   xuni: length of uniform grid in x-direction
   read(5,*)                                                     !   change_y_pos: position in the vertical axis where we reverse the geometric progression to be denser at the wall                                  
   read(5,*)  ngridx2, ngrid_uni, ngridy1, ngridy2               !   ngridx1: number of nodes in uniform part in x-axis
-  write(*,*) ngridx2, ngrid_uni, ngridy1, ngridy2               !   ngrid_uni: number of nodes in uniform part in y-axis  
+  ! write(*,*) ngridx2, ngrid_uni, ngridy1, ngridy2             !   ngrid_uni: number of nodes in uniform part in y-axis  
   read(5,*)                                                     !   ngridy1: nodes in the ratio 1 part in the vertical axis                                                 
   read(5,*) ratx1,ratx2                           !   Ratio of geometrical progression in x direction: xuni-->xmax
-  write(*,*) ratx1,ratx2                          !   Ratio of geometrical progression in y direction: 0-->1    
+  ! write(*,*) ratx1,ratx2                        !   Ratio of geometrical progression in y direction: 0-->1    
   read(5,*)                                       !                                              
   read(5,*) dvisc, Uinf                           !   Kinematic viscosity,  Free stream velocity 
-  write(*,*) dvisc, Uinf
+  ! write(*,*) dvisc, Uinf
   read(5,*)                                       !   
   read(5,*) radius, ct                            !   Rotor radius, Thrust coefficient
-  write(*,*) radius, ct    
+  ! write(*,*) radius, ct    
   read(5,*)                                          
   read(5,*) itmax, nswp, nbackup                  !   itmax: number of maximum iterations, nswp: number of ADI sweeps 
-  write(*,*) itmax, nswp, nbackup                 !   nbackup: number of iterations to store flow field in backup file
+  ! write(*,*) itmax, nswp, nbackup               !   nbackup: number of iterations to store flow field in backup file
   read(5,*)                                       !                              
   read(5,*) eps, tiny                             !   eps: Convergence criterion 
-  write(*,*) eps, tiny                            !   tiny: Small number
+  ! write(*,*) eps, tiny                          !   tiny: Small number
   read(5,*) 
   read(5,*) urfu,urfv,urfp,urfte,urfvis           !   urfu,urfv,urfp,urfte,urfvis: underrelaxation factors for u,v,p,k,vt
-  write(*,*) urfu,urfv,urfp,urfte,urfvis    
+  ! write(*,*) urfu,urfv,urfp,urfte,urfvis    
   read(5,*)
   read(5,*) tiamb                                 !   tiamb: Ambient turbulence intensity
-  write(*,*) tiamb              
+  ! write(*,*) tiamb              
   read(5,*)
   read(5,*) ibackup                               !   ibackup=0 (no backup file is written)
-  write(*,*) ibackup                              !   ibackup=1 (write backup file)
+  ! write(*,*) ibackup                            !   ibackup=1 (write backup file)
 
 !--- Grid definition
   call GRID_DEF 
@@ -127,7 +131,7 @@
  open(200,file='errormax')
 
 !----  Start basic loop of iterations
-  
+
  do it=itstart,itmax    
 
 !----  Calculate inflow/outflow mass
@@ -163,7 +167,7 @@
    if(it.eq.1) then
     call TURBVIS       
    endif
-!----Momentume equation u    
+!--- Momentum equation u    
    call MOMENTUM_U(errmaxu)
  
 !--- Momentum equation v
@@ -185,7 +189,7 @@
    PTOT=PTOT+urfp*PRE-Pref
    PRE=0.
 
-!--- Write velocty and pressure field every nbackuo iterations
+!--- Write velocty and pressure field every nbackup iterations
    
    if (mod(it,nbackup).eq.0) then
     open(97,file='Uvelocity')
@@ -218,10 +222,9 @@
     close(99)    
    end if 
 
+  !  write residuals
   write(*,'(i7,3e18.9)') it,errmaxu,errmaxv,errmaxp
   write(200,'(i7,3e18.9)') it,errmaxu,errmaxv,errmaxp
-   
-!  write residuals
    
   if(errmaxp.lt.eps.and.errmaxu.lt.eps.and.errmaxv.lt.eps) exit
                            
@@ -261,7 +264,7 @@
   allocate(y_grid(ngridy))
 
   !--- From y=ymin to y=1 (disk radius)
-  y_grid(2) = y_min
+  y_grid(2) = ymin
   do j = 2, ngrid_uni-1
     y_grid(j + 1) = y_grid(j) + dy_grid
   enddo
@@ -288,7 +291,7 @@
 
   dx_grid2 = xuni / real(ngridx2-1, kind=8)
   dx_grid1 = dx_grid2 
-  write(*,*) 'dx_grid1=', dx_grid1
+  ! write(*,*) 'dx_grid1=', dx_grid1
 
   ngridx1 = int(dlog(1.d0+xmin*(1.d0-ratx1)/dx_grid1)/dlog(ratx1))
 
@@ -296,10 +299,10 @@
 
   ngridx=ngridx1+ngridx2+ngridx3
 
-  write(*,*) 'ngridx1=', ngridx1
-  write(*,*) 'ngridx2=', ngridx2
-  write(*,*) 'ngridx3=', ngridx3
-  write(*,*) 'ngridx=', ngridx
+  ! write(*,*) 'ngridx1=', ngridx1
+  ! write(*,*) 'ngridx2=', ngridx2
+  ! write(*,*) 'ngridx3=', ngridx3
+  ! write(*,*) 'ngridx=', ngridx
   
   allocate(x_grid(ngridx))
 
@@ -309,7 +312,7 @@
    x_grid(ngridx1-i)=x_grid(ngridx1-i+1)-dx_grid1*ratx1**(i-1)
   enddo
 
-  write(*,*) 'x_grid(1)=', x_grid(1)
+  ! write(*,*) 'x_grid(1)=', x_grid(1)
 
   do i=1,ngridx2
    x_grid(ngridx1+i)=x_grid(ngridx1+i-1)+dx_grid2
@@ -490,9 +493,9 @@
  double precision :: F,bkl,akarm,psim,aka,xi
 
 !--- Estimation of the turbulent viscosity due to ambient turbulence   
-!--- From anisotropy of atmospheric turbulence TKE=0.945*sigmax^2
-!---
-   Cmu=0.09
+!--- From anisotropy of atmospheric turbulence TKE=0.945*sigmax^2 -> 1.5*sigmax^2
+!--- 1/2 (σx^2 + σy^2 + σz^2) =all equal => 3/2 σx^2 = 1.5 σx^2
+   Cmu=0.09d0
    do i=1,ngridx-1 
     do j=1,ngridy-1 
      vtold(i,j)=vt(i,j)
@@ -522,30 +525,66 @@ END Subroutine TURBVIS
   allocate (AE(ngridx,ngridy-1), AW(ngridx,ngridy-1), AN(ngridx,ngridy-1), AS(ngridx,ngridy-1),         &
             AP(ngridx,ngridy-1), BB(ngridx,ngridy-1), DU(ngridx,ngridy-1))
           
-!====INFLOW BOUNDARY CONDITIONS                        
+!====INFLOW BOUNDARY CONDITIONS     
+
+  ! u = bb(inlet) = 1                             
   do j=1,ngridy-1
-!--- To be completed
-   DU(1,j)=1.d0
+    AP(1,j) = 1.d0
+    AN(1,j) = 0.d0
+    AS(1,j) = 0.d0
+    AE(1,j) = 0.d0
+    AW(1,j) = 0.d0
+    BB(1,j) = 1.d0
+    DU(1,j) = 1.d0
   enddo
        
 !====OUTFLOW BOUNDARY CONDITIONS                        
-         
-  do j=2,ngridy-1
-!--- To be completed
-   DU(ngridx,j)=1.d0      
+
+  ! uP = uW
+  do j=1,ngridy-1
+    AP(ngridx,j) = 1.d0
+    AN(ngridx,j) = 0.d0
+    AS(ngridx,j) = 0.d0
+    AE(ngridx,j) = 0.d0
+    AW(ngridx,j) = 1.d0
+    BB(ngridx,j) = 0.d0
+    DU(ngridx,j) = 1.d0
   enddo
       
 !------ BOUNDARY CONDITIONS AT SYMMETRY AXIS   
     
-  do i=2,ngridx
-!--- To be completed
-   DU(i,1)=1.d0     
+  ! u(2) = u(1) & u(2) = u(3)
+  do i=2,ngridx-1
+    ! uP(2) = uN(2)
+    AP(i,2) = 1.d0
+    AN(i,2) = 1.d0
+    AS(i,2) = 0.d0
+    AE(i,2) = 0.d0
+    AW(i,2) = 0.d0
+    BB(i,2) = 0.d0
+    DU(i,2) = 1.d0
+
+    ! uP(1) = uN(1)
+    AP(i,1) = 1.d0
+    AN(i,1) = 1.d0
+    AS(i,1) = 0.d0
+    AE(i,1) = 0.d0
+    AW(i,1) = 0.d0
+    BB(i,1) = 0.d0
+    DU(i,1) = 1.d0
   enddo
 
 !------ BOUNDARY CONDITIONS AT UPPER BOUNDARY  
+
+  ! u = 0
   do i=2,ngridx-1
-!--- To be completed
-   DU(i,ngridy-1)=1.d0
+    AP(i,ngridy-1) = 1.d0
+    AN(i,ngridy-1) = 0.d0
+    AS(i,ngridy-1) = 0.d0
+    AE(i,ngridy-1) = 0.d0
+    AW(i,ngridy-1) = 0.d0
+    BB(i,ngridy-1) = 0.d0
+    DU(i,ngridy-1) = 1.d0
   end do  
     
 !-------------------------------------------------------------------
@@ -678,31 +717,73 @@ END Subroutine TURBVIS
     
   allocate  ( AE(ngridx,ngridy), AW(ngridx,ngridy), AN(ngridx,ngridy), AS(ngridx,ngridy),    & 
               AP(ngridx,ngridy), BB(ngridx,ngridy), DV(ngridx,ngridy))
-              
-!====INFLOW BOUNDARY CONDITIONS     
-      
+
+!====INFLOW BOUNDARY CONDITIONS   
+
+  ! v = 0    
   do j=1,ngridy
-!--- To be completed
+    AP(1,j) = 1.d0
+    AN(1,j) = 0.d0
+    AS(1,j) = 0.d0
+    AE(1,j) = 0.d0
+    AW(1,j) = 0.d0
+    BB(1,j) = 0.d0
+    DV(1,j) = 1.d0
   enddo
 
 !====OUTFLOW BOUNDARY CONDITIONS          
-  do j=2,ngridy-1
-!--- To be completed
+  
+  ! vP = vW
+  do j=1,ngridy
+    AP(ngridx,j) = 1.d0
+    AN(ngridx,j) = 0.d0
+    AS(ngridx,j) = 0.d0
+    AE(ngridx,j) = 0.d0
+    AW(ngridx,j) = 1.d0
+    BB(ngridx,j) = 0.d0
+    DV(ngridx,j) = 1.d0
   end do
       
-!-----SYMMETRY AXIS                
-  do i=2,ngridx
-!--- To be completed
-   DV(i,2)=1.d0    
-
-   DV(i,1)=1.d0
+!-----SYMMETRY AXIS       
+  
+  ! v(2) = 0 and v(1) = -v(3)
+  do i=2,ngridx-1
+    ! v(2) = 0
+    AP(i,2) = 1.d0
+    AN(i,2) = 0.d0
+    AS(i,2) = 0.d0
+    AE(i,2) = 0.d0
+    AW(i,2) = 0.d0
+    BB(i,2) = 0.d0
+    DV(i,2) = 1.d0    
+    ! v(1) = 0
+    AP(i,1) = 1.d0
+    AN(i,1) = 0.d0
+    AS(i,1) = 0.d0
+    AE(i,1) = 0.d0
+    AW(i,1) = 0.d0
+    BB(i,1) = 0.d0
+    DV(i,1) = 1.d0
+    ! v(3) = 0
+    AP(i,3) = 1.d0
+    AN(i,3) = 0.d0
+    AS(i,3) = 0.d0
+    AE(i,3) = 0.d0
+    AW(i,3) = 0.d0
+    BB(i,3) = 0.d0
   enddo
          
 !-----UPPER BOUNDARY CONDITIONS 
         
-  do i=2,ngridx
-!--- To be completed
-   DV(i,ngridy)=1.d0
+  ! v = 0
+  do i=2,ngridx-1
+    AP(i,ngridy) = 1.d0
+    AN(i,ngridy) = 0.d0
+    AS(i,ngridy) = 0.d0
+    AE(i,ngridy) = 0.d0
+    AW(i,ngridy) = 0.d0
+    BB(i,ngridy) = 0.d0
+    DV(i,ngridy) = 1.d0
   end do
 
 !--------CALCULATION OF COEFFICIENTS FOR THE INTERNAL GRID POINTS           
@@ -818,6 +899,11 @@ END Subroutine TURBVIS
   double precision  :: err,errmaxp
   double precision  :: yc,yn,ys
   
+  ! if (ALLOCATED(bb)) then
+  !   write(*,*) "Deallocating BB in the pressure"
+  !   deallocate(bb)
+  ! end if
+  ! deallocate(AP,AN,AS,AE,AW)
   allocate   ( AE(ngridx-1,ngridy-1), AW(ngridx-1,ngridy-1), AN(ngridx-1,ngridy-1), AS(ngridx-1,ngridy-1),  &
                BB(ngridx-1,ngridy-1), AP(ngridx-1,ngridy-1) )
                
@@ -965,6 +1051,7 @@ END Subroutine TURBVIS
      END Subroutine VELOCOR
       
       
+!--------------------------------------------------------------------------------
   Subroutine CALCTE(errmaxte)
 !--------------------------------------------------------------------------------
   use rans  
@@ -980,29 +1067,63 @@ END Subroutine TURBVIS
             AP(ngridx-1,ngridy-1), BB(ngridx-1,ngridy-1))
           
   sigmak = 1.d0
-  cmu = 0.033d0
+  cmu = 0.09d0
   cd = 1.d0
 
-!====INFLOW BOUNDARY CONDITIONS                        
-  do j=1,ngridy-2
-!--- To be completed
+!====INFLOW BOUNDARY CONDITIONS 
+  
+  ! k = 1.5 I^2
+  do j=1,ngridy-1
+    AP(1,j) = 1.d0
+    AN(1,j) = 0.d0
+    AS(1,j) = 0.d0
+    AE(1,j) = 0.d0
+    AW(1,j) = 0.d0
+    BB(1,j) = 1.5d0 * tiamb**2
   enddo
        
 !====OUTFLOW BOUNDARY CONDITIONS                        
          
-  do j=2,ngridy-2
-!--- To be completed
+  ! dk/dx = 0
+  do j=1,ngridy-1
+    AP(ngridx-1,j) = 1.d0
+    AN(ngridx-1,j) = 0.d0
+    AS(ngridx-1,j) = 0.d0
+    AE(ngridx-1,j) = 0.d0
+    AW(ngridx-1,j) = 1.d0
+    BB(ngridx-1,j) = 0.d0
   enddo
       
 !------ BOUNDARY CONDITIONS AT SYMMETRY AXIS   
     
-  do i=2,ngridx-1
-!--- To be completed
+  ! dk/dr = 0
+  do i=2,ngridx-2
+    ! k(1) = k(2)
+    AP(i,1) = 1.d0
+    AN(i,1) = 1.d0
+    AS(i,1) = 0.d0
+    AE(i,1) = 0.d0
+    AW(i,1) = 0.d0
+    BB(i,1) = 0.d0
+    ! k(2) = k(3)
+    AP(i,2) = 1.d0
+    AN(i,2) = 1.d0
+    AS(i,2) = 0.d0
+    AE(i,2) = 0.d0
+    AW(i,2) = 0.d0
+    BB(i,2) = 0.d0
   enddo
 
 !------ BOUNDARY CONDITIONS AT UPPER BOUNDARY  
-  do i=1,ngridx-1
-!--- To be completed
+
+  ! dk/dr = 0
+  do i=2,ngridx-2
+    AP(i,ngridy-1) = 1.d0
+    AN(i,ngridy-1) = 0.d0
+    AS(i,ngridy-1) = 1.d0
+    AE(i,ngridy-1) = 0.d0
+    AW(i,ngridy-1) = 0.d0
+    BB(i,ngridy-1) = 0.d0
   end do  
     
 !-------------------------------------------------------------------
